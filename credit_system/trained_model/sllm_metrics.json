@@ -1,0 +1,8 @@
+{
+    "model_type": "sLLM_QLoRA",
+    "base_model": "Qwen/Qwen2.5-3B-Instruct",
+    "epochs_completed": 3,
+    "val_auc": 0.796372093023256,
+    "val_ks": 0.345,
+    "status": "MOCKED_SUCCESS"
+}

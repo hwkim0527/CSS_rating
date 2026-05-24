@@ -1,0 +1,26 @@
+# Python 가상환경 및 캐시
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+*.bin
+*.model
+*.joblib
+
+# Node.js 의존성 및 빌드 dist
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+
+# 대용량 Lending Club 데이터 원본 파일 차단 (Leakage 및 업로드 한도 제약 방지)
+data_source/loan.csv
+
+# CLI 설정 및 로깅 임시 파일
+.antigravitycli/
+.gemini/
+*.log
+.DS_Store
+Thumbs.db
