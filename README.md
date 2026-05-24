@@ -103,4 +103,4 @@ gcloud run deploy css-rating-service \
 
 ---
 
-*본 프로젝트는 NRcapital 신규사업부의 1차 PoC/프로토타입 범위 완수를 목표로 설계 및 제작되었습니다.*
+
