@@ -71,7 +71,10 @@ export default function Evaluation() {
     setResult(null);
     
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/evaluate', {
+      const isLocalDev = window.location.port === '5173' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const apiUrl = isLocalDev ? 'http://127.0.0.1:8000/api/evaluate' : '/api/evaluate';
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

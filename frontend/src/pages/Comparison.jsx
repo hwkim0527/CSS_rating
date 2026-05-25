@@ -6,8 +6,11 @@ export default function Comparison() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const isLocalDev = window.location.port === '5173' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const apiUrl = isLocalDev ? 'http://127.0.0.1:8000/api/comparison' : '/api/comparison';
+
     // API로부터 성능 비교 리포트 fetch
-    fetch('http://127.0.0.1:8000/api/comparison')
+    fetch(apiUrl)
       .then(res => {
         if (!res.ok) throw new Error('API Error');
         return res.json();
