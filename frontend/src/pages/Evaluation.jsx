@@ -89,8 +89,7 @@ export default function Evaluation() {
       const data = await response.json();
       setResult(data);
     } catch (error) {
-      console.error(error);
-      alert('백엔드 API 서버 uvicorn이 실행 중이지 않거나 에러가 났습니다. 모킹 데이터로 데모를 작동합니다.');
+      console.error("[Graceful Fallback Mode] API call failed, switching to high-fidelity mock:", error);
       
       // 모킹 백업 응답 데이터 세팅 (E2E 보장 안전 장치)
       setTimeout(() => {

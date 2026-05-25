@@ -35,6 +35,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 강력한 브라우저 캐싱 방지용 미들웨어 강제 선언 (최신 패치 코드 실시간 수신 보장)
+@app.middleware("http")
+async def add_no_cache_header(request, call_next):
+    response = await call_next(request)
+    path = request.url.path
+    if path.startswith("/api") or any(path.endswith(ext) for ext in [".js", ".css", ".html", ".svg"]):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 # 입력 스키마 정의 (Lending Club 주요 변수 기반)
 class CreditInput(BaseModel):
     loan_amnt: float = Field(..., example=5000.0, description="대출 신청 금액 ($)")
