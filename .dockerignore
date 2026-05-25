@@ -1,0 +1,9 @@
+.git
+node_modules/
+.venv/
+frontend/node_modules/
+data_source/loan.csv
+credit_system/__pycache__/
+credit_system/utils/__pycache__/
+.gcloudignore
+.dockerignore

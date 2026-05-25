@@ -1,0 +1,12 @@
+.gcloudignore
+.git
+.gitignore
+node_modules/
+.venv/
+frontend/node_modules/
+data_source/loan.csv
+credit_system/__pycache__/
+credit_system/utils/__pycache__/
+.antigravitycli/
+C:\Users\user\.gemini\antigravity-cli/
+C:/Users/user/.gemini/antigravity-cli/
