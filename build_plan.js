@@ -593,6 +593,6 @@ const doc = new Document({
 });
 
 Packer.toBuffer(doc).then(buf => {
-  fs.writeFileSync("F:/Google_Driver/DK/HWK/신규사업/신용평가시스템개발/신용평가시스템_개발계획서.docx", buf);
+  fs.writeFileSync("./신용평가시스템_개발계획서.docx", buf);
   console.log("Done.");
 });
