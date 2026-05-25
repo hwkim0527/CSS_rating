@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, ShieldAlert, Award, ArrowUpRight, BarChart3, TrendingUp, Grid, FileText, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, Award, ArrowUpRight, BarChart3, TrendingUp, Grid, FileText, CheckCircle2 } from 'lucide-react';
 
 export default function Comparison() {
   const [data, setData] = useState(null);

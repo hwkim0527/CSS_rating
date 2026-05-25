@@ -115,7 +115,7 @@ class ModelEvaluator:
                     for idx in range(len(test_df)):
                         row = test_df.iloc[idx]
                         input_txt = (
-                            "<|im_start|>system\n당신은 신뢰할 수 있는 NR캐피탈 신용평가 AI 심사역입니다.\n<|im_end|>\n"
+                            "<|im_start|>system\n당신은 신뢰할 수 있는 HWK 신용평가 AI 심사역입니다.\n<|im_end|>\n"
                             f"<|im_start|>user\n신청자 신용 정보:\n{row['text_prompt']}\n\n이 신청자의 부실가능성은 어떠합니까? "
                             "정상(0), 부실(1)로 판단하고 정수로만 대답하세요.<|im_end|>\n"
                             "<|im_start|>assistant\n판단: "
@@ -233,8 +233,8 @@ class ModelEvaluator:
         return report_data
 
 if __name__ == '__main__':
-    data_dir = r"F:\Google_Driver\DK\NRcapital\신규사업\신용평가시스템개발\data_source"
-    model_dir = r"F:\Google_Driver\DK\NRcapital\신규사업\신용평가시스템개발\credit_system\trained_model"
+    data_dir = r"data_source"
+    model_dir = r"credit_system/trained_model"
     
     evaluator = ModelEvaluator(data_dir, model_dir)
     evaluator.evaluate_all()

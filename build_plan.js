@@ -381,7 +381,7 @@ children.push(new Paragraph({
 children.push(new Paragraph({
   alignment: AlignmentType.CENTER,
   spacing: { before: 400, after: 100 },
-  children: [new TextRun({ text: "NR캐피탈 신규사업 — 신용평가시스템 개발", font: FONT, size: 22, color: "2D3748" })]
+  children: [new TextRun({ text: "HWK 신규사업 — 신용평가시스템 개발", font: FONT, size: 22, color: "2D3748" })]
 }));
 children.push(new Paragraph({
   alignment: AlignmentType.CENTER,
@@ -593,6 +593,6 @@ const doc = new Document({
 });
 
 Packer.toBuffer(doc).then(buf => {
-  fs.writeFileSync("F:/Google_Driver/DK/NRcapital/신규사업/신용평가시스템개발/신용평가시스템_개발계획서.docx", buf);
+  fs.writeFileSync("F:/Google_Driver/DK/HWK/신규사업/신용평가시스템개발/신용평가시스템_개발계획서.docx", buf);
   console.log("Done.");
 });

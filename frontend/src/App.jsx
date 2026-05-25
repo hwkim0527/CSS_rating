@@ -12,7 +12,7 @@ export default function App() {
       <header className="app-header">
         <div className="logo-container">
           <Shield style={{ color: 'var(--accent-cyan)', filter: 'drop-shadow(var(--shadow-neon-cyan))' }} size={28} />
-          <span>NRcapital <span style={{ fontWeight: '300', color: 'var(--text-secondary)' }}>CSS</span></span>
+          <span>HWK <span style={{ fontWeight: '300', color: 'var(--text-secondary)' }}>CSS</span></span>
         </div>
         
         <nav className="nav-links">
@@ -42,7 +42,7 @@ export default function App() {
 
       {/* 푸터 영역 */}
       <footer style={{ borderTop: '1px solid var(--border-glass)', padding: '20px 0', textAlign: 'center', marginTop: '60px', color: 'var(--text-muted)', fontSize: '13px' }}>
-        <p>© 2026 NRcapital 신규사업본부. sLLM 기반 신용평가 및 XAI 시스템 PoC Prototype. All rights reserved.</p>
+        <p>© 2026 HWK 신규사업본부. sLLM 기반 신용평가 및 XAI 시스템 PoC Prototype. All rights reserved.</p>
       </footer>
     </div>
   );

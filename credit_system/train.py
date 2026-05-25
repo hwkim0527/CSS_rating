@@ -247,7 +247,7 @@ class ModelTrainer:
         # instruction 프롬프트를 조립
         def format_instruction(row):
             prompt = (
-                "<|im_start|>system\n당신은 신뢰할 수 있는 NR캐피탈 신용평가 AI 심사역입니다. "
+                "<|im_start|>system\n당신은 신뢰할 수 있는 HWK 신용평가 AI 심사역입니다. "
                 "아래 신청자의 신용 정보를 종합적으로 분석하여 이 신청자가 대출금을 성실히 전액 상환(정상=0)할지, "
                 "혹은 장기 연체하거나 채무 불이행(부실=1)할지 부실가능성 예측을 수행하세요.\n<|im_end|>\n"
                 f"<|im_start|>user\n신청자 신용 정보:\n{row['text_prompt']}\n\n이 신청자의 부실가능성은 어떠합니까? "
@@ -302,7 +302,7 @@ class ModelTrainer:
                 for idx in range(min(500, len(val_df))): # 속도 보장을 위해 500개 검증 샘플 추출
                     row = val_df.iloc[idx]
                     input_txt = (
-                        "<|im_start|>system\n당신은 신뢰할 수 있는 NR캐피탈 신용평가 AI 심사역입니다.\n<|im_end|>\n"
+                        "<|im_start|>system\n당신은 신뢰할 수 있는 HWK 신용평가 AI 심사역입니다.\n<|im_end|>\n"
                         f"<|im_start|>user\n신청자 신용 정보:\n{row['text_prompt']}\n\n이 신청자의 부실가능성은 어떠합니까? "
                         "정상(0), 부실(1)로 판단하고 정수로만 대답하세요.<|im_end|>\n"
                         "<|im_start|>assistant\n판단: "
@@ -375,8 +375,8 @@ class ModelTrainer:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="신용평가시스템 모델 학습 스크립트")
-    parser.add_argument('--data_dir', type=str, default=r"F:\Google_Driver\DK\NRcapital\신규사업\신용평가시스템개발\data_source", help="전처리 데이터 폴더")
-    parser.add_argument('--output_dir', type=str, default=r"F:\Google_Driver\DK\NRcapital\신규사업\신용평가시스템개발\credit_system\trained_model", help="모델 저장 폴더")
+    parser.add_argument('--data_dir', type=str, default=r"data_source", help="전처리 데이터 폴더")
+    parser.add_argument('--output_dir', type=str, default=r"credit_system/trained_model", help="모델 저장 폴더")
     parser.add_argument('--model_id', type=str, default='Qwen/Qwen2.5-3B-Instruct', help="HuggingFace sLLM 모델 ID")
     parser.add_argument('--gcp_bucket', type=str, default=None, help="GCS 백업 버킷명 (선택)")
     

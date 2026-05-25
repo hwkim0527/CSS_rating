@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Sparkles, TrendingUp, HelpCircle, Activity, ChevronRight, RefreshCw, BarChart2 } from 'lucide-react';
+import { Shield, Sparkles, TrendingUp, Activity, ChevronRight, RefreshCw, BarChart2 } from 'lucide-react';
 
 export default function Evaluation() {
   // 입력 폼 상태 정의 (기본 예시 값 세팅)

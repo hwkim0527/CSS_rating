@@ -1,4 +1,4 @@
-# 🛡️ NRcapital sLLM 신용평가 및 XAI 시스템 (CSS_rating)
+# 🛡️ HWK sLLM 신용평가 및 XAI 시스템 (CSS_rating)
 
 본 시스템은 개인의 신용정보 및 대출 조건을 분석하여 부실가능성(Default Probability)을 정교하게 예측하고, 산출된 최종 신용 점수(1000점 만점)와 등급(A~F)에 대한 명확한 사유를 5종 XAI(설명가능 AI)로 제공하는 엔터프라이즈급 신용평가 시뮬레이션 플랫폼입니다.
 
@@ -103,4 +103,4 @@ gcloud run deploy css-rating-service \
 
 ---
 
-
+*본 프로젝트는 HWK 신규사업부의 1차 PoC/프로토타입 범위 완수를 목표로 설계 및 제작되었습니다.*

@@ -11,6 +11,12 @@ class CreditXAI:
         self.explainer = None
         self.lgbm_model = None
         
+        # 범주형 피처 리스트 정의
+        self.categorical_features = [
+            'term', 'grade', 'sub_grade', 'emp_length', 'home_ownership', 
+            'verification_status', 'purpose', 'addr_state'
+        ]
+        
         # 피처 매핑 정보 (영어 피처명 -> 한글 설명 및 표시용 포맷)
         self.feature_meta = {
             'loan_amnt': {'kr': '대출 신청 금액', 'unit': '달러'},

@@ -8,6 +8,11 @@ import numpy as np
 import os
 import json
 import joblib
+import mimetypes
+
+# Windows 레지스트리 MIME 타입 꼬임 해결용 강제 선언
+mimetypes.add_type('application/javascript', '.js')
+mimetypes.add_type('text/css', '.css')
 
 from credit_system.utils.xai import CreditXAI
 
@@ -16,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(BASE_DIR, 'credit_system', 'trained_model')
 
 app = FastAPI(
-    title="NRcapital sLLM 신용평가시스템 API",
+    title="HWK sLLM 신용평가시스템 API",
     description="개인의 신용정보를 기반으로 부실가능성을 정교하게 예측하고 산출 근거를 5종 XAI로 설명합니다.",
     version="1.0"
 )

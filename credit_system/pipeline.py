@@ -295,7 +295,7 @@ class CreditDataPipeline:
 
 if __name__ == '__main__':
     # 로컬 수동 테스트용 진입점
-    raw_path = r"F:\Google_Driver\DK\NRcapital\신규사업\신용평가시스템개발\data_source\loan.csv"
+    raw_path = r"data_source/loan.csv"
     pipeline = CreditDataPipeline(raw_path, sample_size=1000)
     res = pipeline.run_pipeline()
     print("수동 테스트 결과:", res)
