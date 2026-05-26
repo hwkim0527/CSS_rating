@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Shield, Sparkles, Activity } from 'lucide-react';
+import { Shield, Sparkles, Activity, BookOpen } from 'lucide-react';
 import Evaluation from './pages/Evaluation';
 import Comparison from './pages/Comparison';
+import Report from './pages/Report';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('evaluation');
@@ -32,12 +33,22 @@ export default function App() {
             <Activity size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} />
             모델 예측력 대조
           </button>
+          <button 
+            onClick={() => setCurrentPage('report')} 
+            className={`nav-link ${currentPage === 'report' ? 'active' : ''}`}
+            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            <BookOpen size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} />
+            학습 및 검증 보고서
+          </button>
         </nav>
       </header>
 
       {/* 대시보드 페이지 뷰어 */}
       <main className="dashboard-container">
-        {currentPage === 'evaluation' ? <Evaluation /> : <Comparison />}
+        {currentPage === 'evaluation' && <Evaluation />}
+        {currentPage === 'comparison' && <Comparison />}
+        {currentPage === 'report' && <Report />}
       </main>
 
       {/* 푸터 영역 */}
@@ -47,3 +58,4 @@ export default function App() {
     </div>
   );
 }
+
