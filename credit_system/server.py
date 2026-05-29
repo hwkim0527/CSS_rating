@@ -74,6 +74,36 @@ class CreditInput(BaseModel):
 # 전역 XAI 및 스코어러 초기화
 xai_engine = CreditXAI(MODEL_DIR)
 lgbm_model = None
+CATEGORY_MAP = {}
+
+def load_category_map():
+    global CATEGORY_MAP
+    if not CATEGORY_MAP:
+        try:
+            train_path = os.path.join(BASE_DIR, 'data_source', 'train_processed.csv')
+            if os.path.exists(train_path):
+                df_train = pd.read_csv(train_path)
+                cat_cols = ['term', 'grade', 'sub_grade', 'emp_length', 'home_ownership', 'verification_status', 'purpose', 'addr_state']
+                for col in cat_cols:
+                    if col in df_train.columns:
+                        CATEGORY_MAP[col] = sorted(df_train[col].dropna().unique().astype(str))
+                print("[FastAPI] 학습 카테고리 맵 로드 완료.")
+                # XAI 엔진과 카테고리 맵 동기화
+                xai_engine.category_map = CATEGORY_MAP
+        except Exception as e:
+            print(f"[FastAPI] 카테고리 맵 로드 경고: {e}")
+
+def align_categorical_dtypes(df_input):
+    df_aligned = df_input.copy()
+    cat_cols = ['term', 'grade', 'sub_grade', 'emp_length', 'home_ownership', 'verification_status', 'purpose', 'addr_state']
+    for col in cat_cols:
+        if col in df_aligned.columns:
+            if col in CATEGORY_MAP:
+                dtype = pd.CategoricalDtype(categories=CATEGORY_MAP[col], ordered=False)
+                df_aligned[col] = df_aligned[col].astype(str).astype(dtype)
+            else:
+                df_aligned[col] = df_aligned[col].astype('category')
+    return df_aligned
 
 def load_lgbm():
     global lgbm_model
@@ -111,6 +141,7 @@ def score_to_grade(score):
 
 @app.on_event("startup")
 def startup_event():
+    load_category_map()
     load_lgbm()
 
 @app.post("/api/evaluate")
@@ -129,12 +160,8 @@ def evaluate_credit(data: CreditInput):
     
     if lgbm_model is not None:
         try:
-            # 카테고리 데이터 형변환
-            cat_cols = ['term', 'grade', 'sub_grade', 'emp_length', 'home_ownership', 'verification_status', 'purpose', 'addr_state']
-            df_model = df.copy()
-            for col in cat_cols:
-                if col in df_model.columns:
-                    df_model[col] = df_model[col].astype('category')
+            # 카테고리 데이터 형변환 (학습 카테고리와 정합화 보장)
+            df_model = align_categorical_dtypes(df)
                     
             # 예측 수행
             p_default = float(lgbm_model.predict_proba(df_model[lgbm_model.feature_name_])[:, 1][0])

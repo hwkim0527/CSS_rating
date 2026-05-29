@@ -34,6 +34,7 @@ class CreditXAI:
             'total_acc': {'kr': '총 보유 계좌 수', 'unit': '개'},
             'credit_age_months': {'kr': '총 신용 거래 기간', 'unit': '개월'}
         }
+        self.category_map = {}
         
     def _load_model(self):
         if self.lgbm_model is None and os.path.exists(self.lgbm_path):
@@ -83,12 +84,17 @@ class CreditXAI:
             return sorted(contributions, key=lambda x: abs(x['impact']), reverse=True)
             
         # 실제 SHAP 로직 실행
-        # 범주형 카테고리화
+        # 범주형 카테고리화 (학습 카테고리와 정합화 보장)
         for col in self.lgbm_model.feature_name_:
             if col in input_df.columns:
-                # LGBM에 맞게 타입 매핑
                 if col in ['term', 'grade', 'sub_grade', 'emp_length', 'home_ownership', 'verification_status', 'purpose', 'addr_state']:
-                    input_df[col] = input_df[col].astype('category')
+                    if col in self.category_map:
+                        # 훈련 시의 카테고리 범주 적용으로 범주 미정합 에러 원천 차단
+                        import pandas as pd
+                        dtype = pd.CategoricalDtype(categories=self.category_map[col], ordered=False)
+                        input_df[col] = input_df[col].astype(str).astype(dtype)
+                    else:
+                        input_df[col] = input_df[col].astype('category')
                     
         # 피처 정렬 강제 (모델 피처 순서 정합성 보장)
         input_df = input_df[self.lgbm_model.feature_name_]
@@ -132,8 +138,33 @@ class CreditXAI:
             # 영향도의 절대값 순서로 정렬
             return sorted(contributions, key=lambda x: abs(x['impact']), reverse=True)
         except Exception as e:
-            print(f"[경고] SHAP 실제 계산 실패: {e}. 임의 생성기로 대체합니다.")
-            return self.calculate_shap_contributions(input_df) # 재호출하여 Mocking
+            print(f"[경고] SHAP 실제 계산 실패: {e}. 임의 생성기로 대체합니다 (재귀 무한루프 방지).")
+            # 직접 Mocking 기여도 생성하여 반환 (무한 루프 차단)
+            contributions = []
+            fico = float(input_df['fico_score'].iloc[0])
+            dti = float(input_df['dti'].iloc[0])
+            inc = float(input_df['annual_inc'].iloc[0])
+            
+            mock_vals = {
+                'fico_score': 35.0 if fico > 720 else (-30.0 if fico < 650 else 5.0),
+                'dti': -20.0 if dti > 25 else (15.0 if dti < 12 else 0.0),
+                'annual_inc': 25.0 if inc > 80000 else (-15.0 if inc < 40000 else 5.0),
+                'int_rate': -10.0 if float(input_df['int_rate'].iloc[0]) > 15 else 8.0,
+                'delinq_2yrs': -25.0 if float(input_df['delinq_2yrs'].iloc[0]) > 0 else 10.0,
+                'inq_last_6mths': -15.0 if float(input_df['inq_last_6mths'].iloc[0]) > 2 else 5.0,
+                'revol_util': -12.0 if float(input_df['revol_util'].iloc[0]) > 70 else 6.0
+            }
+            
+            for k, meta in self.feature_meta.items():
+                val = input_df[k].iloc[0] if k in input_df.columns else 0.0
+                val_formatted = f"{val:,.1f}" if isinstance(val, (int, float)) else str(val)
+                contributions.append({
+                    "feature": k,
+                    "name_kr": meta['kr'],
+                    "value": f"{val_formatted} {meta['unit']}",
+                    "impact": mock_vals.get(k, 1.2) + np.random.normal(0, 1.0)
+                })
+            return sorted(contributions, key=lambda x: abs(x['impact']), reverse=True)
 
     def generate_counterfactuals(self, input_df, current_score):
         """
