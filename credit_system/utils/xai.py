@@ -36,6 +36,41 @@ class CreditXAI:
         }
         self.category_map = {}
         
+    def _get_korean_value(self, col, raw_val):
+        """
+        범주형 변수의 영문 코드를 개인신용정보 입력폼의 한글 옵션명과 1대1 일치하도록 매핑 번역
+        """
+        if col == 'home_ownership':
+            home_map = {'RENT': '월세(임차)', 'OWN': '자가 소유', 'MORTGAGE': '주택담보대출 보유', 'OTHER': '기타 주거'}
+            return home_map.get(str(raw_val).upper(), str(raw_val))
+        elif col == 'purpose':
+            purpose_map = {
+                'debt_consolidation': '부채 통합(대환대출)', 'credit_card': '신용카드 결제 대금 대환', 
+                'home_improvement': '주택 수리 및 인테리어', 'other': '기타 목적', 'major_purchase': '목돈 구입',
+                'small_business': '소규모 사업 자금', 'car': '자동차 구입', 'medical': '의료비',
+                'moving': '이사 비용', 'vacation': '휴가 비용', 'house': '주택 구입', 
+                'wedding': '결혼 자금', 'renewable_energy': '친환경 에너지 투자'
+            }
+            return purpose_map.get(str(raw_val).lower(), str(raw_val))
+        elif col == 'verification_status':
+            ver_map = {'Source Verified': '소득원 검증완료', 'Verified': '소득액 검증완료', 'Not Verified': '소득 미검증'}
+            return ver_map.get(str(raw_val), str(raw_val))
+        elif col == 'term':
+            term_str = str(raw_val).replace(' ', '').replace('months', '')
+            return '36개월' if '36' in term_str else ('60개월' if '60' in term_str else f"{raw_val}개월")
+        elif col == 'emp_length':
+            try:
+                emp_val = int(float(raw_val))
+                return '10년 이상' if emp_val >= 10 else ('1년 미만' if emp_val <= 0 else f"{emp_val}년")
+            except:
+                return str(raw_val)
+                
+        # 수치형 피처의 포맷팅 및 단위 결합
+        meta = self.feature_meta.get(col, {})
+        unit = meta.get('unit', '')
+        val_formatted = f"{raw_val:,.1f}" if isinstance(raw_val, (int, float)) else str(raw_val)
+        return f"{val_formatted} {unit}".strip()
+
     def _load_model(self):
         if self.lgbm_model is None and os.path.exists(self.lgbm_path):
             self.lgbm_model = joblib.load(self.lgbm_path)
@@ -87,11 +122,11 @@ class CreditXAI:
             
             for k, meta in self.feature_meta.items():
                 val = input_df[k].iloc[0] if k in input_df.columns else 0.0
-                val_formatted = f"{val:,.1f}" if isinstance(val, (int, float)) else str(val)
+                display_value = self._get_korean_value(k, val)
                 contributions.append({
                     "feature": k,
                     "name_kr": meta['kr'],
-                    "value": f"{val_formatted} {meta['unit']}",
+                    "value": display_value,
                     "impact": mock_vals.get(k, 1.2) + np.random.normal(0, 1.0)
                 })
             return sorted(contributions, key=lambda x: abs(x['impact']), reverse=True)
@@ -136,7 +171,7 @@ class CreditXAI:
                     continue
                 meta = self.feature_meta[col]
                 raw_val = input_df[col].iloc[0]
-                val_formatted = f"{raw_val:,.1f}" if isinstance(raw_val, (int, float)) else str(raw_val)
+                display_value = self._get_korean_value(col, raw_val)
                 
                 # 부실확률 기여도를 신용평가점수(1000점 기준) 영향도로 변환하기 위해 스케일링 곱 적용
                 impact_score = -shap_val[i] * 600.0 # 스케일링 팩터 적용
@@ -161,7 +196,7 @@ class CreditXAI:
                 contributions.append({
                     "feature": col,
                     "name_kr": meta['kr'],
-                    "value": f"{val_formatted} {meta['unit']}",
+                    "value": display_value,
                     "impact": float(impact_score)
                 })
                 
@@ -200,11 +235,11 @@ class CreditXAI:
             
             for k, meta in self.feature_meta.items():
                 val = input_df[k].iloc[0] if k in input_df.columns else 0.0
-                val_formatted = f"{val:,.1f}" if isinstance(val, (int, float)) else str(val)
+                display_value = self._get_korean_value(k, val)
                 contributions.append({
                     "feature": k,
                     "name_kr": meta['kr'],
-                    "value": f"{val_formatted} {meta['unit']}",
+                    "value": display_value,
                     "impact": mock_vals.get(k, 1.2) + np.random.normal(0, 1.0)
                 })
             return sorted(contributions, key=lambda x: abs(x['impact']), reverse=True)
