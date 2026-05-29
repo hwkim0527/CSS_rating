@@ -179,25 +179,24 @@ def evaluate_credit(data: CreditInput):
         p_default = 1.0 - float(np.clip(score_factor, 0.05, 0.95))
         p_default = np.clip(p_default * 0.4, 0.005, 0.95) # 스케일링
 
-    # 3. 1000점 척도 신용점수 및 등급 부여
-    base_score = prob_to_score(p_default)
+    # 도메인 지식 기반 정밀 Calibration 확률 보정 필터 선제 적용
+    # 3-1. 연간 소득 기반 확률 보정 (기준: $60,000, 1만 달러당 -0.5%p 감소, 최대 -3.0%p ~ +5.0%p 범위)
+    inc_factor = (data.annual_inc - 60000.0) / 10000.0 * 0.005
+    inc_factor = np.clip(inc_factor, -0.03, 0.05)
     
-    # 도메인 지식 기반 정밀 Calibration 보정 필터 적용
-    # 3-1. 연간 소득 보정 (기준: $60,000, 1만 달러당 +10점 / -10점, 감점은 최대 -50점, 가점은 최대 +100점)
-    inc_adj = (data.annual_inc - 60000.0) / 10000.0 * 10.0
-    inc_adj = float(np.clip(inc_adj, -50.0, 100.0))
+    # 3-2. FICO 기반 확률 보정 (기준: 700점, 10점당 -0.4%p 감소, 최대 -5.0%p ~ +8.0%p 범위)
+    fico_factor = (data.fico_score - 700.0) / 10.0 * 0.004
+    fico_factor = np.clip(fico_factor, -0.05, 0.08)
     
-    # 3-2. FICO 점수 보정 (기준: 700점, 10점당 +8점 / -8점, 감점 최대 -100점, 가점 최대 +150점)
-    fico_adj = (data.fico_score - 700.0) / 10.0 * 8.0
-    fico_adj = float(np.clip(fico_adj, -100.0, 150.0))
+    # 3-3. DTI 기반 확률 보정 (기준: 15%, 1% 악화 시 +0.15%p 증가, 최대 -3.0%p ~ +4.0%p 범위)
+    dti_factor = (data.dti - 15.0) * 0.0015
+    dti_factor = np.clip(dti_factor, -0.03, 0.04)
     
-    # 3-3. DTI 비율 보정 (기준: 15%, 1% 개선 시 +3점 / 악화 시 -3점, 감점 최대 -80점, 가점 최대 +50점)
-    dti_adj = (15.0 - data.dti) * 3.0
-    dti_adj = float(np.clip(dti_adj, -80.0, 50.0))
-    
-    # 종합 보정치 반영
-    calibration_offset = inc_adj + fico_adj + dti_adj
-    final_score = int(np.clip(base_score + calibration_offset, 100, 1000))
+    # 최종 보정된 부실상환이탈율 산출 및 클리핑 (0.1% ~ 99.0%)
+    p_default = float(np.clip(p_default - inc_factor - fico_factor + dti_factor, 0.001, 0.99))
+
+    # 3. 1000점 척도 신용점수 및 등급 부여 (보정된 확률로부터 1대1 매핑 유도)
+    final_score = prob_to_score(p_default)
     final_grade = score_to_grade(final_score)
     
     # 4. XAI 기여도 및 설명 생성

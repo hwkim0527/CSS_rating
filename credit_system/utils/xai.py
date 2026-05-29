@@ -62,15 +62,18 @@ class CreditXAI:
             dti = float(input_df['dti'].iloc[0])
             inc = float(input_df['annual_inc'].iloc[0])
             
-            # Calibration 보정치 계산
-            inc_adj = (inc - 60000.0) / 10000.0 * 10.0
-            inc_adj = float(np.clip(inc_adj, -50.0, 100.0))
+            # Calibration 확률 보정치 기반 스코어 변환
+            inc_factor = (inc - 60000.0) / 10000.0 * 0.005
+            inc_factor = np.clip(inc_factor, -0.03, 0.05)
+            inc_adj = inc_factor * 2000.0
             
-            fico_adj = (fico - 700.0) / 10.0 * 8.0
-            fico_adj = float(np.clip(fico_adj, -100.0, 150.0))
+            fico_factor = (fico - 700.0) / 10.0 * 0.004
+            fico_factor = np.clip(fico_factor, -0.05, 0.08)
+            fico_adj = fico_factor * 2000.0
             
-            dti_adj = (15.0 - dti) * 3.0
-            dti_adj = float(np.clip(dti_adj, -80.0, 50.0))
+            dti_factor = (dti - 15.0) * 0.0015
+            dti_factor = np.clip(dti_factor, -0.03, 0.04)
+            dti_adj = -dti_factor * 2000.0
             
             mock_vals = {
                 'fico_score': (35.0 if fico > 720 else (-30.0 if fico < 650 else 5.0)) + fico_adj,
@@ -140,16 +143,19 @@ class CreditXAI:
                 
                 # 피처별 Calibration 보정값 1대1 싱크 적용
                 if col == 'annual_inc':
-                    inc_adj = (raw_val - 60000.0) / 10000.0 * 10.0
-                    inc_adj = float(np.clip(inc_adj, -50.0, 100.0))
+                    inc_factor = (raw_val - 60000.0) / 10000.0 * 0.005
+                    inc_factor = np.clip(inc_factor, -0.03, 0.05)
+                    inc_adj = inc_factor * 2000.0
                     impact_score += inc_adj
                 elif col == 'fico_score':
-                    fico_adj = (raw_val - 700.0) / 10.0 * 8.0
-                    fico_adj = float(np.clip(fico_adj, -100.0, 150.0))
+                    fico_factor = (raw_val - 700.0) / 10.0 * 0.004
+                    fico_factor = np.clip(fico_factor, -0.05, 0.08)
+                    fico_adj = fico_factor * 2000.0
                     impact_score += fico_adj
                 elif col == 'dti':
-                    dti_adj = (15.0 - raw_val) * 3.0
-                    dti_adj = float(np.clip(dti_adj, -80.0, 50.0))
+                    dti_factor = (raw_val - 15.0) * 0.0015
+                    dti_factor = np.clip(dti_factor, -0.03, 0.04)
+                    dti_adj = -dti_factor * 2000.0
                     impact_score += dti_adj
                     
                 contributions.append({
@@ -169,15 +175,18 @@ class CreditXAI:
             dti = float(input_df['dti'].iloc[0])
             inc = float(input_df['annual_inc'].iloc[0])
             
-            # Calibration 보정치 계산
-            inc_adj = (inc - 60000.0) / 10000.0 * 10.0
-            inc_adj = float(np.clip(inc_adj, -50.0, 100.0))
+            # Calibration 확률 보정치 기반 스코어 변환
+            inc_factor = (inc - 60000.0) / 10000.0 * 0.005
+            inc_factor = np.clip(inc_factor, -0.03, 0.05)
+            inc_adj = inc_factor * 2000.0
             
-            fico_adj = (fico - 700.0) / 10.0 * 8.0
-            fico_adj = float(np.clip(fico_adj, -100.0, 150.0))
+            fico_factor = (fico - 700.0) / 10.0 * 0.004
+            fico_factor = np.clip(fico_factor, -0.05, 0.08)
+            fico_adj = fico_factor * 2000.0
             
-            dti_adj = (15.0 - dti) * 3.0
-            dti_adj = float(np.clip(dti_adj, -80.0, 50.0))
+            dti_factor = (dti - 15.0) * 0.0015
+            dti_factor = np.clip(dti_factor, -0.03, 0.04)
+            dti_adj = -dti_factor * 2000.0
             
             mock_vals = {
                 'fico_score': (35.0 if fico > 720 else (-30.0 if fico < 650 else 5.0)) + fico_adj,
