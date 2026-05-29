@@ -90,6 +90,9 @@ class CreditXAI:
                 if col in ['term', 'grade', 'sub_grade', 'emp_length', 'home_ownership', 'verification_status', 'purpose', 'addr_state']:
                     input_df[col] = input_df[col].astype('category')
                     
+        # 피처 정렬 강제 (모델 피처 순서 정합성 보장)
+        input_df = input_df[self.lgbm_model.feature_name_]
+                    
         # SHAP 값 계산 (수치형 기여도 위주로 도출)
         try:
             shap_values = self.explainer.shap_values(input_df)

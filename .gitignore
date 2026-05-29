@@ -6,8 +6,10 @@ __pycache__/
 *.pyd
 .ipynb_checkpoints/
 *.bin
+!credit_system/trained_model/lgbm_model.bin
 *.model
 *.joblib
+
 
 # Node.js 의존성 및 빌드 dist
 node_modules/
