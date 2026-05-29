@@ -62,10 +62,20 @@ class CreditXAI:
             dti = float(input_df['dti'].iloc[0])
             inc = float(input_df['annual_inc'].iloc[0])
             
+            # Calibration 보정치 계산
+            inc_adj = (inc - 60000.0) / 10000.0 * 10.0
+            inc_adj = float(np.clip(inc_adj, -50.0, 100.0))
+            
+            fico_adj = (fico - 700.0) / 10.0 * 8.0
+            fico_adj = float(np.clip(fico_adj, -100.0, 150.0))
+            
+            dti_adj = (15.0 - dti) * 3.0
+            dti_adj = float(np.clip(dti_adj, -80.0, 50.0))
+            
             mock_vals = {
-                'fico_score': 35.0 if fico > 720 else (-30.0 if fico < 650 else 5.0),
-                'dti': -20.0 if dti > 25 else (15.0 if dti < 12 else 0.0),
-                'annual_inc': 25.0 if inc > 80000 else (-15.0 if inc < 40000 else 5.0),
+                'fico_score': (35.0 if fico > 720 else (-30.0 if fico < 650 else 5.0)) + fico_adj,
+                'dti': (-20.0 if dti > 25 else (15.0 if dti < 12 else 0.0)) + dti_adj,
+                'annual_inc': (25.0 if inc > 80000 else (-15.0 if inc < 40000 else 5.0)) + inc_adj,
                 'int_rate': -10.0 if float(input_df['int_rate'].iloc[0]) > 15 else 8.0,
                 'delinq_2yrs': -25.0 if float(input_df['delinq_2yrs'].iloc[0]) > 0 else 10.0,
                 'inq_last_6mths': -15.0 if float(input_df['inq_last_6mths'].iloc[0]) > 2 else 5.0,
@@ -128,6 +138,20 @@ class CreditXAI:
                 # 부실확률 기여도를 신용평가점수(1000점 기준) 영향도로 변환하기 위해 스케일링 곱 적용
                 impact_score = -shap_val[i] * 600.0 # 스케일링 팩터 적용
                 
+                # 피처별 Calibration 보정값 1대1 싱크 적용
+                if col == 'annual_inc':
+                    inc_adj = (raw_val - 60000.0) / 10000.0 * 10.0
+                    inc_adj = float(np.clip(inc_adj, -50.0, 100.0))
+                    impact_score += inc_adj
+                elif col == 'fico_score':
+                    fico_adj = (raw_val - 700.0) / 10.0 * 8.0
+                    fico_adj = float(np.clip(fico_adj, -100.0, 150.0))
+                    impact_score += fico_adj
+                elif col == 'dti':
+                    dti_adj = (15.0 - raw_val) * 3.0
+                    dti_adj = float(np.clip(dti_adj, -80.0, 50.0))
+                    impact_score += dti_adj
+                    
                 contributions.append({
                     "feature": col,
                     "name_kr": meta['kr'],
@@ -145,10 +169,20 @@ class CreditXAI:
             dti = float(input_df['dti'].iloc[0])
             inc = float(input_df['annual_inc'].iloc[0])
             
+            # Calibration 보정치 계산
+            inc_adj = (inc - 60000.0) / 10000.0 * 10.0
+            inc_adj = float(np.clip(inc_adj, -50.0, 100.0))
+            
+            fico_adj = (fico - 700.0) / 10.0 * 8.0
+            fico_adj = float(np.clip(fico_adj, -100.0, 150.0))
+            
+            dti_adj = (15.0 - dti) * 3.0
+            dti_adj = float(np.clip(dti_adj, -80.0, 50.0))
+            
             mock_vals = {
-                'fico_score': 35.0 if fico > 720 else (-30.0 if fico < 650 else 5.0),
-                'dti': -20.0 if dti > 25 else (15.0 if dti < 12 else 0.0),
-                'annual_inc': 25.0 if inc > 80000 else (-15.0 if inc < 40000 else 5.0),
+                'fico_score': (35.0 if fico > 720 else (-30.0 if fico < 650 else 5.0)) + fico_adj,
+                'dti': (-20.0 if dti > 25 else (15.0 if dti < 12 else 0.0)) + dti_adj,
+                'annual_inc': (25.0 if inc > 80000 else (-15.0 if inc < 40000 else 5.0)) + inc_adj,
                 'int_rate': -10.0 if float(input_df['int_rate'].iloc[0]) > 15 else 8.0,
                 'delinq_2yrs': -25.0 if float(input_df['delinq_2yrs'].iloc[0]) > 0 else 10.0,
                 'inq_last_6mths': -15.0 if float(input_df['inq_last_6mths'].iloc[0]) > 2 else 5.0,

@@ -180,7 +180,24 @@ def evaluate_credit(data: CreditInput):
         p_default = np.clip(p_default * 0.4, 0.005, 0.95) # 스케일링
 
     # 3. 1000점 척도 신용점수 및 등급 부여
-    final_score = prob_to_score(p_default)
+    base_score = prob_to_score(p_default)
+    
+    # 도메인 지식 기반 정밀 Calibration 보정 필터 적용
+    # 3-1. 연간 소득 보정 (기준: $60,000, 1만 달러당 +10점 / -10점, 감점은 최대 -50점, 가점은 최대 +100점)
+    inc_adj = (data.annual_inc - 60000.0) / 10000.0 * 10.0
+    inc_adj = float(np.clip(inc_adj, -50.0, 100.0))
+    
+    # 3-2. FICO 점수 보정 (기준: 700점, 10점당 +8점 / -8점, 감점 최대 -100점, 가점 최대 +150점)
+    fico_adj = (data.fico_score - 700.0) / 10.0 * 8.0
+    fico_adj = float(np.clip(fico_adj, -100.0, 150.0))
+    
+    # 3-3. DTI 비율 보정 (기준: 15%, 1% 개선 시 +3점 / 악화 시 -3점, 감점 최대 -80점, 가점 최대 +50점)
+    dti_adj = (15.0 - data.dti) * 3.0
+    dti_adj = float(np.clip(dti_adj, -80.0, 50.0))
+    
+    # 종합 보정치 반영
+    calibration_offset = inc_adj + fico_adj + dti_adj
+    final_score = int(np.clip(base_score + calibration_offset, 100, 1000))
     final_grade = score_to_grade(final_score)
     
     # 4. XAI 기여도 및 설명 생성
